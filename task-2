@@ -1,0 +1,26 @@
+
+import nmap
+
+def scan_ports(target):
+    nm = nmap.PortScanner()
+    nm.scan(target, arguments='-sV --script=vuln')
+    
+    for host in nm.all_hosts():
+        print(f'Scanning {host}')
+        for proto in nm[host].all_protocols():
+            lport = nm[host][proto].keys()
+            for port in lport:
+                state = nm[host][proto][port]['state']
+                name = nm[host][proto][port]['name']
+                product = nm[host][proto][port]['product']
+                version = nm[host][proto][port]['version']
+                extrainfo = nm[host][proto][port]['extrainfo']
+                print(f'Port: {port}\tState: {state}\tService: {name}\tProduct: {product}\tVersion: {version}\tExtra Info: {extrainfo}')
+                
+                if 'script' in nm[host][proto][port]:
+                    for script in nm[host][proto][port]['script']:
+                        print(f'Vulnerability: {script}\nOutput: {nm[host][proto][port]["script"][script]}')
+
+if __name__ == "__main__":
+    target = input("Enter the target IP address or domain: ")
+    scan_ports(target)
